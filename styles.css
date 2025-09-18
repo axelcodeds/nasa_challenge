@@ -1,0 +1,21 @@
+.gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .notification {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .uv-low { background-color: #4ade80; }
+        .uv-moderate { background-color: #facc15; }
+        .uv-high { background-color: #f97316; }
+        .uv-very-high { background-color: #ef4444; }
+        .uv-extreme { background-color: #9333ea; }
+        .air-good { background-color: #4ade80; }
+        .air-moderate { background-color: #facc15; }
+        .air-unhealthy-sensitive { background-color: #f97316; }
+        .air-unhealthy { background-color: #ef4444; }
+        .air-very-unhealthy { background-color: #9333ea; }
+        .air-hazardous { background-color: #7c3aed; }
