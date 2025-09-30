@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,109 +12,103 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body class="gradient-bg min-h-screen font-sans">
-    <div class="container mx-auto px-4 py-8">
+    <!-- Icono de viento (no funcional) -->
+    <div class="wind-icon">
+        <i data-feather="wind" class="w-6 h-6"></i>
+    </div>
+
+    <!-- Enhanced Sun in top right corner -->
+    <div class="sun-container">
+        <div class="sun-glow"></div>
+        <div class="scaler">
+            <div class="sun-rays"></div>
+        </div>
+        <div class="sun-core" id="animated-sun"></div>
+        <div class="sun-flares" id="sun-flares"></div>
+    </div>
+
+    <!-- UV warming effect -->
+    <div class="uv-warming" id="uv-warming"></div>
+
+    <!-- Contenedor de animación de viento -->
+    <div id="wind-container" class="wind-animation"></div>
+
+    <div class="container mx-auto px-4 py-2">
         <!-- Header -->
-        <header class="text-center mb-12" data-aos="fade-down">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Clima Chilpancingo</h1>
-            <p class="text-lg text-gray-600">Monitoreo de radiación UV y calidad del aire</p>
-            <div class="flex justify-center items-center mt-4">
-                <i data-feather="map-pin" class="text-gray-600 mr-2"></i>
-                <span class="text-gray-700">Chilpancingo de los Bravo, Gro.</span>
+        <header class="text-center mb-8" data-aos="fade-down">
+            <h1 class="text-4xl font-bold text-white text-contrast mb-2">Guerrero</h1>
+            <p class="text-lg text-white text-contrast">Monitoreo de radiación UV y calidad del aire</p>
+            <div class="mt-4 text-white">
+                <p id="simulation-status" class="text-sm bg-blue-500 inline-block px-3 py-1 rounded-full">Simulación
+                    activa - Cambio cada 10 segundos</p>
             </div>
         </header>
 
-        <!-- Main -->
-        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Contenedor de la info UV-->
-            <div class="bg-white rounded-xl shadow-lg p-6" data-aos="fade-right">
-                <div class="flex items-center mb-4">
-                    <i data-feather="sun" class="text-yellow-500 mr-3"></i>
-                    <h2 class="text-2xl font-semibold text-gray-800">Índice UV</h2>
-                </div>
-                
-                <div class="flex items-center justify-between mb-6">
-                    <div class="text-5xl font-bold" id="uv-value">--</div>
-                    <div class="px-4 py-2 rounded-full text-white font-medium" id="uv-level">Cargando...</div>
-                </div>
-
-                <div class="bg-gray-100 rounded-lg p-4 mb-4">
-                    <h3 class="font-medium text-gray-700 mb-2">Recomendaciones:</h3>
-                    <p class="text-gray-600" id="uv-recommendation">Esperando datos...</p>
-                </div>
-
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="h-2.5 rounded-full" id="uv-meter"></div>
-                </div>
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>0</span>
-                    <span>3</span>
-                    <span>6</span>
-                    <span>8</span>
-                    <span>11+</span>
+        <!-- Main Content -->
+        <div class="flex flex-col md:flex-row">
+            <!-- Left Side - Space for Map -->
+            <div class="w-full md:w-1/2 p-4">
+                <div class="bg-black/20 rounded-xl h-96 flex items-center justify-center">
+                    <p class="text-white text-xl text-contrast">Mapa de la región (área para implementación futura)</p>
                 </div>
             </div>
 
-            <!-- Carta de calidad de aire -->
-            <div class="bg-white rounded-xl shadow-lg p-6" data-aos="fade-left">
-                <div class="flex items-center mb-4">
-                    <i data-feather="wind" class="text-blue-500 mr-3"></i>
-                    <h2 class="text-2xl font-semibold text-gray-800">Calidad del Aire</h2>
-                </div>
-                
-                <div class="flex items-center justify-between mb-6">
-                    <div class="text-5xl font-bold" id="air-value">--</div>
-                    <div class="px-4 py-2 rounded-full text-white font-medium" id="air-level">Cargando...</div>
-                </div>
+            <!-- Right Side - Weather Data -->
+            <div class="w-full md:w-1/2 p-4">
+                <div class="space-y-6">
+                    <!-- Contenedor de la info UV-->
+                    <div class="card-contrast rounded-xl p-6" data-aos="fade-left">
+                        <div class="flex items-center mb-4">
+                            <i data-feather="sun" class="text-yellow-500 mr-3"></i>
+                            <h2 class="text-lg font-semibold text-white text-contrast">Índice UV</h2>
+                        </div>
 
-                <div class="bg-gray-100 rounded-lg p-4 mb-4">
-                    <h3 class="font-medium text-gray-700 mb-2">Recomendaciones:</h3>
-                    <p class="text-gray-600" id="air-recommendation">Esperando datos...</p>
-                </div>
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="text-4xl font-bold text-white text-contrast" id="uv-value">--</div>
+                            <div class="px-4 py-2 rounded-full text-white font-medium" id="uv-level">Cargando...</div>
+                        </div>
+                        <div class="bg-white/30 rounded-full h-2.5">
+                            <div class="h-2.5 rounded-full" id="uv-meter"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-white mt-1 text-contrast">
+                            <span>0</span>
+                            <span>3</span>
+                            <span>6</span>
+                            <span>8</span>
+                            <span>11+</span>
+                        </div>
+                    </div>
 
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="h-2.5 rounded-full" id="air-meter"></div>
-                </div>
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Buena</span>
-                    <span>Moderada</span>
-                    <span>Dañina</span>
-                    <span>Muy dañina</span>
+                    <!-- Carta de calidad de aire -->
+                    <div class="card-contrast rounded-xl p-6" data-aos="fade-left">
+                        <div class="flex items-center mb-4">
+                            <i data-feather="wind" class="text-blue-300 mr-3"></i>
+                            <h2 class="text-lg font-semibold text-white text-contrast">Calidad del Aire</h2>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="text-4xl font-bold text-white text-contrast" id="air-value">--</div>
+                            <div class="px-4 py-2 rounded-full text-white font-medium" id="air-level">Cargando...</div>
+                        </div>
+
+                        <div class="bg-white/30 rounded-full h-2.5">
+                            <div class="h-2.5 rounded-full" id="air-meter"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-white mt-1 text-contrast">
+                            <span>Buena</span>
+                            <span>Moderada</span>
+                            <span>Dañina</span>
+                            <span>Muy dañina</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </main>
-
-        <!-- Info -->
-        <section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6" data-aos="fade-up">
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center mb-3">
-                    <i data-feather="thermometer" class="text-red-500 mr-3"></i>
-                    <h3 class="font-semibold text-gray-800">Temperatura</h3>
-                </div>
-                <p class="text-3xl font-bold" id="temperature">--°C</p>
-            </div>
-            
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center mb-3">
-                    <i data-feather="droplet" class="text-blue-400 mr-3"></i>
-                    <h3 class="font-semibold text-gray-800">Humedad</h3>
-                </div>
-                <p class="text-3xl font-bold" id="humidity">--%</p>
-            </div>
-            
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <div class="flex items-center mb-3">
-                    <i data-feather="cloud" class="text-gray-400 mr-3"></i>
-                    <h3 class="font-semibold text-gray-800">Condición</h3>
-                </div>
-                <p class="text-3xl font-bold" id="condition">--</p>
-            </div>
-        </section>
-
-        <!-- Contenedor de notificaciones -->
-        <div id="notifications" class="fixed bottom-4 right-4 space-y-3 w-full max-w-xs"></div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="main.js"></script>
 </body>
+
 </html>
