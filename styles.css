@@ -1,21 +1,275 @@
 .gradient-bg {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        .notification {
-            animation: slideIn 0.5s ease-out;
-        }
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .uv-low { background-color: #4ade80; }
-        .uv-moderate { background-color: #facc15; }
-        .uv-high { background-color: #f97316; }
-        .uv-very-high { background-color: #ef4444; }
-        .uv-extreme { background-color: #9333ea; }
-        .air-good { background-color: #4ade80; }
-        .air-moderate { background-color: #facc15; }
-        .air-unhealthy-sensitive { background-color: #f97316; }
-        .air-unhealthy { background-color: #ef4444; }
-        .air-very-unhealthy { background-color: #9333ea; }
-        .air-hazardous { background-color: #7c3aed; }
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Enhanced Sun Animation */
+.sun-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    width: 120px;
+    height: 120px;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
+    transition: all 1.5s ease;
+}
+
+.sun-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #ffd700 20%, #ff8c00 70%, #ff4500 100%);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 60px #ffd700,
+        0 0 100px #ff8c00,
+        0 0 150px #ff4500;
+    animation: sunPulse 4s ease-in-out infinite;
+    z-index: 10;
+    transition: all 1.5s ease;
+}
+
+.sun-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(255, 215, 0, 0.8) 30deg,
+        transparent 60deg,
+        rgba(255, 140, 0, 0.8) 90deg,
+        transparent 120deg,
+        rgba(255, 69, 0, 0.8) 150deg,
+        transparent 180deg,
+        rgba(255, 215, 0, 0.8) 210deg,
+        transparent 240deg,
+        rgba(255, 140, 0, 0.8) 270deg,
+        transparent 300deg,
+        rgba(255, 69, 0, 0.8) 330deg,
+        transparent 360deg
+    );
+    animation: rotateRays 15s linear infinite;
+    z-index: 5;
+    transition: all 1.5s ease;
+}
+
+.scaler {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    animation: sunPulse 4s ease-in-out infinite;
+}
+
+.sun-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 140, 0, 0.2) 30%, transparent 70%);
+    animation: glowPulse 6s ease-in-out infinite alternate;
+    z-index: 1;
+    transition: all 1.5s ease;
+}
+
+.sun-flares {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-60%, -53%);
+    width: 180px;
+    height: 180px;
+    z-index: 2;
+}
+
+.sun-flare {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.7), transparent);
+    border-radius: 50%;
+    animation: flarePulse 8s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+@keyframes rotateRays {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+@keyframes flarePulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* UV warming effect */
+.uv-warming {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: all 1.5s ease;
+    background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.3) 0%, transparent 70%);
+}
+
+.uv-warming.active {
+    opacity: 1;
+}
+
+/* Animación de viento */
+.wind-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.wind-particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: windFlow 8s linear infinite;
+}
+
+.wind-line {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.05);
+    height: 1px;
+    animation: windLineFlow 6s linear infinite;
+}
+
+@keyframes windFlow {
+    0% {
+        transform: translateX(-100px) translateY(0) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+        transform: translateX(-50px) translateY(-20px) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: translateX(calc(100vw + 50px)) translateY(-40px) scale(1);
+    }
+    100% {
+        transform: translateX(calc(100vw + 100px)) translateY(-60px) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes windLineFlow {
+    0% {
+        transform: translateX(-200px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateX(calc(100vw + 200px));
+        opacity: 0;
+    }
+}
+
+.wind-icon {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    position: relative;
+    z-index: 10;
+}
+
+/* Air quality background effects */
+.air-quality-good {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.air-quality-moderate {
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+}
+
+.air-quality-unhealthy {
+    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+}
+
+.air-quality-very-unhealthy {
+    background: linear-gradient(135deg, #cc2b5e 0%, #753a88 100%);
+}
+
+.air-quality-hazardous {
+    background: linear-gradient(135deg, #42275a 0%, #734b6d 100%);
+}
+
+/* Text contrast for light backgrounds */
+.text-contrast {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.card-contrast {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
