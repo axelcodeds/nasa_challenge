@@ -4,6 +4,7 @@
 const map = L.map('map', {
   attributionControl: false, 
   center: [17.6, -99.5], // Centro en Guerrero
+
 });
 
 // This prevents the zoom level from ever exceeding 19
