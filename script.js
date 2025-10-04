@@ -451,6 +451,88 @@ function updateWeatherData(weatherData) {
 // Inicializar datos del clima
 createSunFlares();
 startWindAnimation();
-updateWeatherData();
+createClouds();
+//updateWeatherData();
+setInterval(createMovingClouds, 15000);
+
+// Inicializar con datos por defecto - esto se ejecutará después de que todo esté cargado
+setTimeout(() => {
+  updateWeatherData({ uvIndex: 11, airQuality: 200 });
+}, 100);
 
 console.log('Sistema cargado. Haz clic en cualquier municipio para ver su nombre en la consola.');
+
+// Función para crear nubes dispersas en la parte superior
+function createClouds() {
+    const cloudContainer = document.createElement('div');
+    cloudContainer.className = 'cloud-container';
+    document.body.appendChild(cloudContainer);
+
+    const cloudTypes = ['cloud-type1', 'cloud-type2', 'cloud-type3', 'cloud-type4'];
+    const animationSpeeds = ['moveCloudSlow', 'moveCloudMedium', 'moveCloudFast'];
+    
+    // Crear múltiples nubes dispersas
+    for (let i = 0; i < 12; i++) { // Aumenté a 12 nubes
+        const cloud = document.createElement('div');
+        const cloudType = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
+        const animationSpeed = animationSpeeds[Math.floor(Math.random() * animationSpeeds.length)];
+        
+        cloud.className = `cloud ${cloudType}`;
+        
+        // Posición aleatoria en la parte superior (0% a 30% del viewport height)
+        const topPosition = Math.random() * 30;
+        
+        // Iniciar en posiciones aleatorias a lo ancho de la pantalla
+        const randomStart = Math.random() * window.innerWidth - 200;
+        
+        // Duración de animación aleatoria entre 30s y 60s
+        const duration = 30 + Math.random() * 30;
+        
+        cloud.style.top = `${topPosition}%`;
+        cloud.style.left = `${randomStart}px`;
+        cloud.style.animationName = animationSpeed;
+        cloud.style.animationDuration = `${duration}s`;
+        cloud.style.animationDelay = `${Math.random() * 20}s`; // Delay aleatorio
+        
+        // Opacidad aleatoria para variedad
+        cloud.style.opacity = `${0.5 + Math.random() * 0.3}`;
+        
+        cloudContainer.appendChild(cloud);
+    }
+}
+
+// Función para crear nubes adicionales que se mueven de izquierda a derecha
+function createMovingClouds() {
+    const cloudContainer = document.querySelector('.cloud-container');
+    const cloudTypes = ['cloud-type1', 'cloud-type2', 'cloud-type3'];
+    
+    // Crear nubes que empiezan desde la izquierda
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+            const cloud = document.createElement('div');
+            const cloudType = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
+            
+            cloud.className = `cloud ${cloudType}`;
+            
+            const topPosition = 5 + Math.random() * 25; // 5% a 30% from top
+            const duration = 40 + Math.random() * 40; // 40s to 80s
+            const delay = Math.random() * 10;
+            
+            cloud.style.top = `${topPosition}%`;
+            cloud.style.left = `-150px`;
+            cloud.style.animationDuration = `${duration}s`;
+            cloud.style.animationDelay = `${delay}s`;
+            cloud.style.opacity = `${0.4 + Math.random() * 0.4}`;
+            
+            cloudContainer.appendChild(cloud);
+            
+            // Remover la nube después de que termine la animación
+            setTimeout(() => {
+                if (cloud.parentNode) {
+                    cloud.parentNode.removeChild(cloud);
+                }
+            }, (duration + delay) * 1000);
+            
+        }, i * 3000); // Crear nube cada 3 segundos
+    }
+}

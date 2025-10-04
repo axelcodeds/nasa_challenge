@@ -356,3 +356,137 @@ tbody tr:hover {
         padding: 6px 8px;
     }
 }
+
+/* Animación de nubes mejorada */
+.cloud-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40vh; /* Aumenté la altura para más espacio */
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.cloud {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: moveCloud linear infinite;
+    filter: blur(1px);
+}
+
+.cloud:before,
+.cloud:after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+}
+
+/* Animaciones para diferentes velocidades */
+@keyframes moveCloudSlow {
+    from {
+        transform: translateX(-150px);
+    }
+    to {
+        transform: translateX(calc(100vw + 150px));
+    }
+}
+
+@keyframes moveCloudMedium {
+    from {
+        transform: translateX(-200px);
+    }
+    to {
+        transform: translateX(calc(100vw + 200px));
+    }
+}
+
+@keyframes moveCloudFast {
+    from {
+        transform: translateX(-250px);
+    }
+    to {
+        transform: translateX(calc(100vw + 250px));
+    }
+}
+
+/* Estilos para diferentes tipos de nubes */
+.cloud-type1 {
+    width: 60px;
+    height: 20px;
+}
+
+.cloud-type1:before {
+    width: 25px;
+    height: 25px;
+    top: -15px;
+    left: 5px;
+}
+
+.cloud-type1:after {
+    width: 35px;
+    height: 35px;
+    top: -20px;
+    left: 25px;
+}
+
+.cloud-type2 {
+    width: 80px;
+    height: 30px;
+}
+
+.cloud-type2:before {
+    width: 35px;
+    height: 35px;
+    top: -20px;
+    left: 10px;
+}
+
+.cloud-type2:after {
+    width: 45px;
+    height: 45px;
+    top: -25px;
+    left: 40px;
+}
+
+.cloud-type3 {
+    width: 100px;
+    height: 40px;
+}
+
+.cloud-type3:before {
+    width: 45px;
+    height: 45px;
+    top: -25px;
+    left: 10px;
+}
+
+.cloud-type3:after {
+    width: 55px;
+    height: 55px;
+    top: -30px;
+    left: 50px;
+}
+
+.cloud-type4 {
+    width: 120px;
+    height: 50px;
+}
+
+.cloud-type4:before {
+    width: 55px;
+    height: 55px;
+    top: -30px;
+    left: 15px;
+}
+
+.cloud-type4:after {
+    width: 65px;
+    height: 65px;
+    top: -35px;
+    left: 60px;
+}
