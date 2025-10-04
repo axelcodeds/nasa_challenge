@@ -3,11 +3,17 @@
 // 1. Inicializar el mapa y centrarlo en Guerrero (SIN MARCA DE AGUA)
 const map = L.map('map', {
   attributionControl: false, 
-  zoomControl:false,// Elimina el control de atribución
-  scrollWheelZoom: false, // Permite zoom con la rueda del ratón
-  doubleClickZoom: false, // Deshabilita el zoom con doble clic
+  //zoomControl:false,// Elimina el control de atribución
+  //scrollWheelZoom: false, // Permite zoom con la rueda del ratón
+  //doubleClickZoom: false, // Deshabilita el zoom con doble clic
   center: [17.6, -99.5] , // Centro en Guerrero
-  zoom: 8
+});
+
+// This prevents the zoom level from ever exceeding 19
+map.on('zoomend', function() {
+    if (map.getZoom() < 8) {
+        map.setView([17.6, -99.5], 8)
+    }
 });
 
 // 2. Añadir capa base OpenStreetMap (SIN ATRIBUCIÓN)
