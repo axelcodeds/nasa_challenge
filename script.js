@@ -444,6 +444,8 @@ function updateWeatherData(weatherData) {
   updateSunAnimation(uvIndex);
   updateAirQualityBackground(airQuality);
   updateWindAnimation(airQuality);
+    // Actualizar íconos de feather
+  feather.replace();
 }
 
 // Inicializar datos del clima
