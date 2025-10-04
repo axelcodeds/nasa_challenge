@@ -1,3 +1,161 @@
+// script.js — adaptado para mostrar MUNICIPIOS (NOMGEO)
+
+// 1. Inicializar el mapa y centrarlo en Guerrero (SIN MARCA DE AGUA)
+const map = L.map('map', {
+  attributionControl: false, 
+  zoomControl:false,// Elimina el control de atribución
+  scrollWheelZoom: false, // Permite zoom con la rueda del ratón
+  doubleClickZoom: false, // Deshabilita el zoom con doble clic
+  center: [17.6, -99.5] , // Centro en Guerrero
+  zoom: 8
+});
+
+// 2. Añadir capa base OpenStreetMap (SIN ATRIBUCIÓN)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '' // Sin marca de agua
+}).addTo(map);
+
+// Variables globales
+let geojsonLayer = null;
+let selectedLayer = null;
+
+// --- Estilos ---
+function style(feature) {
+  return {
+    fillColor: '#3388ff',
+    weight: 1,
+    opacity: 1,
+    color: 'white',
+    dashArray: '3',
+    fillOpacity: 0.6
+  };
+}
+function highlightStyle() {
+  return {
+    weight: 3,
+    color: '#333',
+    dashArray: '',
+    fillOpacity: 0.85
+  };
+}
+function selectedStyle() {
+  return {
+    fillColor: '#ff9933',
+    weight: 3,
+    color: '#cc5500',
+    dashArray: '',
+    fillOpacity: 0.9
+  };
+}
+
+// --- Control de info (topright) ---
+const info = L.control({ position: 'topright' });
+
+info.onAdd = function (map) {
+  this._div = L.DomUtil.create('div', 'info');
+  this.update();
+  return this._div;
+};
+
+// Actualizamos el panel de información para mostrar el nombre del municipio.
+info.update = function (props) {
+  const name = props?.NOMGEO || '—';
+  this._div.innerHTML = `<h4>Municipio de Guerrero</h4>` + (props ? `<b>${name}</b>` : '');
+};
+
+info.addTo(map);
+
+// --- Eventos por feature ---
+function highlightFeature(e) {
+  const layer = e.target;
+  if (selectedLayer && layer === selectedLayer) return;
+  layer.setStyle(highlightStyle());
+  layer.bringToFront();
+  info.update(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+  const layer = e.target;
+  if (selectedLayer && layer === selectedLayer) {
+    layer.setStyle(selectedStyle());
+    return;
+  }
+  geojsonLayer.resetStyle(layer);
+  info.update();
+}
+
+function zoomToFeature(e) {
+  const layer = e.target;
+
+  if (selectedLayer && selectedLayer !== layer) {
+    geojsonLayer.resetStyle(selectedLayer);
+  }
+
+  if (selectedLayer === layer) {
+    selectedLayer = null;
+    geojsonLayer.resetStyle(layer);
+    map.closePopup();
+    info.update();
+  } else {
+    selectedLayer = layer;
+    layer.setStyle(selectedStyle());
+    layer.bringToFront();
+    info.update(layer.feature.properties);
+
+    // IMPRIMIR EN CONSOLA EL MUNICIPIO SELECCIONADO
+    const props = layer.feature.properties || {};
+    const mun = props?.NOMGEO ? props.NOMGEO : 'Municipio desconocido';
+    console.log('=== MUNICIPIO SELECCIONADO ===');
+    console.log('Nombre:', mun);
+    console.log('Propiedades completas:', props);
+    console.log('==============================');
+
+    layer.bindPopup(`<strong>${mun}</strong>`, { maxWidth: 300 }).openPopup();
+
+    map.fitBounds(layer.getBounds(), { maxZoom: 10 });
+  }
+}
+
+function onEachFeature(feature, layer) {
+  layer.on({
+    mouseover: highlightFeature,
+    mouseout: resetHighlight,
+    click: zoomToFeature
+  });
+  layer.on('add', () => {
+    if (layer._path) layer._path.style.cursor = 'pointer';
+  });
+}
+
+// --- CARGA ROBUSTA DEL GEOJSON LOCAL ---
+const geojsonURL = 'groo.json';
+
+fetch(geojsonURL)
+  .then(resp => {
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  })
+  .then(data => {
+    if (!data || !data.features) throw new Error('GeoJSON no tiene la estructura esperada.');
+
+    console.log('GeoJSON de municipios cargado. Primer feature.properties =>', data.features[0].properties);
+
+    geojsonLayer = L.geoJson(data, {
+      style: style,
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    try {
+      map.fitBounds(geojsonLayer.getBounds());
+    } catch (err) {
+      console.warn('No se pudo ajustar bounds del GeoJSON:', err);
+    }
+  })
+  .catch(err => {
+    console.error(`Error al cargar o parsear ${geojsonURL}:`, err);
+    alert(`No se pudo cargar "${geojsonURL}". Verifica la consola (F12) y asegúrate de usar un servidor local.`);
+  });
+
 // Inicializar Feather icons
 feather.replace();
 
@@ -13,7 +171,6 @@ function createSunFlares() {
     const flare = document.createElement("div");
     flare.className = "sun-flare";
 
-    // Position flares around the sun
     const angle = (i / 8) * Math.PI * 2;
     const distance = 70;
     const x = Math.cos(angle) * distance;
@@ -40,22 +197,18 @@ function createWindParticle() {
   const particle = document.createElement("div");
   particle.className = "wind-particle";
 
-  // Tamaño aleatorio
   const size = Math.random() * 4 + 2;
   particle.style.width = size + "px";
   particle.style.height = size + "px";
 
-  // Posición inicial aleatoria
   particle.style.left = "-100px";
   particle.style.top = Math.random() * window.innerHeight + "px";
 
-  // Duración de animación aleatoria
   particle.style.animationDuration = Math.random() * 4 + 6 + "s";
   particle.style.animationDelay = Math.random() * 2 + "s";
 
   windContainer.appendChild(particle);
 
-  // Remover partícula después de la animación
   setTimeout(() => {
     if (particle.parentNode) {
       particle.parentNode.removeChild(particle);
@@ -68,21 +221,17 @@ function createWindLine() {
   const line = document.createElement("div");
   line.className = "wind-line";
 
-  // Ancho aleatorio
   const width = Math.random() * 100 + 50;
   line.style.width = width + "px";
 
-  // Posición inicial aleatoria
   line.style.left = "-200px";
   line.style.top = Math.random() * window.innerHeight + "px";
 
-  // Duración de animación aleatoria
   line.style.animationDuration = Math.random() * 3 + 5 + "s";
   line.style.animationDelay = Math.random() * 1 + "s";
 
   windContainer.appendChild(line);
 
-  // Remover línea después de la animación
   setTimeout(() => {
     if (line.parentNode) {
       line.parentNode.removeChild(line);
@@ -92,14 +241,11 @@ function createWindLine() {
 
 // Función para iniciar la animación de viento
 function startWindAnimation() {
-  // Crear partículas y líneas periódicamente
   windInterval = setInterval(() => {
-    // Crear partículas
     if (Math.random() < 0.7) {
       createWindParticle();
     }
 
-    // Crear líneas
     if (Math.random() < 0.3) {
       createWindLine();
     }
@@ -114,9 +260,7 @@ function updateSunAnimation(uvIndex) {
   const sunRays = document.querySelector(".sun-rays");
   const sunGlow = document.querySelector(".sun-glow");
 
-  // Apply effects based on UV index
   if (uvIndex >= 8) {
-    // Extreme UV - very intense sun
     sun.style.boxShadow =
       "0 0 100px #ffd700, " +
       "0 0 180px #ff8c00, " +
@@ -131,7 +275,6 @@ function updateSunAnimation(uvIndex) {
     warmingEffect.style.background =
       "radial-gradient(circle at top right, rgba(255, 69, 0, 0.7) 0%, rgba(255, 0, 0, 0.4) 30%, transparent 70%)";
   } else if (uvIndex >= 6) {
-    // High UV - intense sun
     sun.style.boxShadow =
       "0 0 80px #ffd700, " + "0 0 140px #ff8c00, " + "0 0 200px #ff4500";
     sunContainer.style.filter = "drop-shadow(0 0 25px rgba(255, 140, 0, 0.8))";
@@ -143,7 +286,6 @@ function updateSunAnimation(uvIndex) {
     warmingEffect.style.background =
       "radial-gradient(circle at top right, rgba(255, 140, 0, 0.6) 0%, rgba(255, 69, 0, 0.3) 30%, transparent 70%)";
   } else if (uvIndex >= 3) {
-    // Moderate UV
     sun.style.boxShadow =
       "0 0 60px #ffd700, " + "0 0 100px #ff8c00, " + "0 0 150px #ff4500";
     sunContainer.style.filter = "drop-shadow(0 0 20px rgba(255, 215, 0, 0.7))";
@@ -155,7 +297,6 @@ function updateSunAnimation(uvIndex) {
     warmingEffect.style.background =
       "radial-gradient(circle at top right, rgba(255, 215, 0, 0.4) 0%, rgba(255, 140, 0, 0.2) 30%, transparent 70%)";
   } else {
-    // Low UV - less prominent
     sun.style.boxShadow = "0 0 30px #ffd700, " + "0 0 60px #ff8c00";
     sunContainer.style.filter = "drop-shadow(0 0 10px rgba(255, 215, 0, 0.5))";
     sunContainer.style.width = "100px";
@@ -170,7 +311,6 @@ function updateSunAnimation(uvIndex) {
 function updateAirQualityBackground(airQuality) {
   const body = document.body;
 
-  // Remove all air quality classes
   body.classList.remove(
     "air-quality-good",
     "air-quality-moderate",
@@ -179,7 +319,6 @@ function updateAirQualityBackground(airQuality) {
     "air-quality-hazardous"
   );
 
-  // Add appropriate class based on air quality
   if (airQuality <= 50) {
     body.classList.add("air-quality-good");
   } else if (airQuality <= 100) {
@@ -195,25 +334,20 @@ function updateAirQualityBackground(airQuality) {
 
 // Function to update wind animation intensity based on air quality
 function updateWindAnimation(airQuality) {
-  // Adjust wind animation based on air quality
   if (airQuality > 100) {
-    // More intense wind for poor air quality
     if (windInterval) {
       clearInterval(windInterval);
     }
     windInterval = setInterval(() => {
-      // Create more particles for poor air quality
       if (Math.random() < 0.9) {
         createWindParticle();
       }
 
-      // Create more lines for poor air quality
       if (Math.random() < 0.5) {
         createWindLine();
       }
     }, 200);
   } else {
-    // Normal wind for good air quality
     if (windInterval) {
       clearInterval(windInterval);
     }
@@ -229,28 +363,12 @@ function updateWindAnimation(airQuality) {
   }
 }
 
-// Function to generate random weather data
-function generateRandomWeatherData() {
-  // Random UV index between 0 and 12
-  const uvIndex = Math.floor(Math.random() * 13);
-
-  // Random air quality between 0 and 300
-  const airQuality = Math.floor(Math.random() * 301);
-
-  return {
-    uvIndex,
-    airQuality,
-  };
-}
-
 // Function to update all weather data displays
 function updateWeatherData(weatherData) {
   const { uvIndex, airQuality } = weatherData;
 
-  // Update UV display
   document.getElementById("uv-value").textContent = uvIndex;
 
-  // Determine UV level and color
   let uvLevel, uvColor, uvWidth;
   if (uvIndex <= 2) {
     uvLevel = "Bajo";
@@ -283,10 +401,8 @@ function updateWeatherData(weatherData) {
     "uv-meter"
   ).className = `h-2.5 rounded-full ${uvColor}`;
 
-  // Update air quality display
   document.getElementById("air-value").textContent = airQuality;
 
-  // Determine air quality level and color
   let airLevel, airColor, airWidth;
   if (airQuality <= 50) {
     airLevel = "Buena";
@@ -319,40 +435,14 @@ function updateWeatherData(weatherData) {
     "air-meter"
   ).className = `h-2.5 rounded-full ${airColor}`;
 
-  // Update animations
   updateSunAnimation(uvIndex);
   updateAirQualityBackground(airQuality);
   updateWindAnimation(airQuality);
 }
 
-// Simulation function that updates data every 10 seconds
-function startSimulation() {
-  // Initial update
-  const initialData = generateRandomWeatherData();
-  updateWeatherData(initialData);
+// Inicializar datos del clima
+createSunFlares();
+startWindAnimation();
+updateWeatherData();
 
-  // Update every 10 seconds
-  setInterval(() => {
-    const newData = generateRandomWeatherData();
-    updateWeatherData(newData);
-
-    // Add a visual indicator that data has updated
-    const status = document.getElementById("simulation-status");
-    status.classList.remove("bg-blue-500");
-    status.classList.add("bg-green-500");
-    status.textContent = "Datos actualizados - Próximo cambio en 10 segundos";
-
-    setTimeout(() => {
-      status.classList.remove("bg-green-500");
-      status.classList.add("bg-blue-500");
-      status.textContent = "Simulación activa - Cambio cada 10 segundos";
-    }, 2000);
-  }, 10000);
-}
-
-// Initialize sun flares and start simulation
-document.addEventListener("DOMContentLoaded", function () {
-  createSunFlares();
-  startWindAnimation(); // Start wind animation immediately
-  startSimulation();
-});
+console.log('Sistema cargado. Haz clic en cualquier municipio para ver su nombre en la consola.');
