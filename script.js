@@ -3,10 +3,7 @@
 // 1. Inicializar el mapa y centrarlo en Guerrero (SIN MARCA DE AGUA)
 const map = L.map('map', {
   attributionControl: false, 
-  //zoomControl:false,// Elimina el control de atribución
-  //scrollWheelZoom: false, // Permite zoom con la rueda del ratón
-  //doubleClickZoom: false, // Deshabilita el zoom con doble clic
-  center: [17.6, -99.5] , // Centro en Guerrero
+  center: [17.6, -99.5], // Centro en Guerrero
 });
 
 // This prevents the zoom level from ever exceeding 19
@@ -16,10 +13,25 @@ map.on('zoomend', function() {
     }
 });
 
-// 2. Añadir capa base OpenStreetMap (SIN ATRIBUCIÓN)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '' // Sin marca de agua
-}).addTo(map);
+// 2. Añadir capas base (fondos del mapa)
+const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: ''
+});
+
+const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri, NASA, NGA, USGS'
+});
+
+// Por defecto, mostramos la imagen satelital
+esriSatellite.addTo(map);
+
+// Añadir el control para cambiar entre mapa de calles e imagen satelital
+const baseLayers = {
+    "Imagen Satelital": esriSatellite,
+    "Mapa de Calles": openStreetMap
+};
+
+L.control.layers(baseLayers, null, { collapsed: false }).addTo(map);
 
 // Variables globales
 let geojsonLayer = null;
@@ -71,6 +83,30 @@ info.update = function (props) {
 
 info.addTo(map);
 
+// --- Función para obtener datos meteorológicos ---
+function fetchWeatherData(latitude, longitude) {
+  const apiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=uv_index,ozone`;
+
+  fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Error HTTP! estado: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Datos actualizados para nueva ubicación:', data.current);
+      
+      // Actualiza las variables globales y la interfaz
+      actualUv = data.current.uv_index;
+      actualOzone = data.current.ozone;
+      updateWeatherData({ uvIndex: actualUv, airQuality: actualOzone });
+    })
+    .catch(error => {
+      console.error('Error en la fetch:', error);
+    });
+}
+
 // --- Eventos por feature ---
 function highlightFeature(e) {
   const layer = e.target;
@@ -106,19 +142,37 @@ function zoomToFeature(e) {
     selectedLayer = layer;
     layer.setStyle(selectedStyle());
     layer.bringToFront();
-    info.update(layer.feature.properties);
-
-    // IMPRIMIR EN CONSOLA EL MUNICIPIO SELECCIONADO
+    
     const props = layer.feature.properties || {};
     const mun = props?.NOMGEO ? props.NOMGEO : 'Municipio desconocido';
+    
+    // --- CAPTURAR COORDENADAS DEL CENTRO DEL MUNICIPIO ---
+    const center = layer.getBounds().getCenter();
+    const lat = center.lat;
+    const lng = center.lng;
+    
     console.log('=== MUNICIPIO SELECCIONADO ===');
     console.log('Nombre:', mun);
-    console.log('Propiedades completas:', props);
+    console.log('Latitud:', lat);
+    console.log('Longitud:', lng);
     console.log('==============================');
 
-    layer.bindPopup(`<strong>${mun}</strong>`, { maxWidth: 300 }).openPopup();
+    // Construir contenido del popup con coordenadas
+    const popupContent = `
+      <strong>${mun}</strong>
+      <br/>
+      Coordenadas del centro:
+      <br/>
+      Lat: ${lat.toFixed(4)}, Lon: ${lng.toFixed(4)}
+    `;
+    
+    layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
 
-    map.fitBounds(layer.getBounds(), { maxZoom: 10 });
+    // Centrar el mapa en el municipio
+    map.flyTo(center, 11);
+    
+    // --- ACTUALIZAR DATOS METEOROLÓGICOS CON LAS NUEVAS COORDENADAS ---
+    fetchWeatherData(lat, lng);
   }
 }
 
@@ -161,6 +215,8 @@ fetch(geojsonURL)
     console.error(`Error al cargar o parsear ${geojsonURL}:`, err);
     alert(`No se pudo cargar "${geojsonURL}". Verifica la consola (F12) y asegúrate de usar un servidor local.`);
   });
+
+// ... (el resto de tu código permanece igual - funciones de animación, nubes, etc.)
 
 // Inicializar Feather icons
 feather.replace();
@@ -452,15 +508,12 @@ function updateWeatherData(weatherData) {
 createSunFlares();
 startWindAnimation();
 createClouds();
-//updateWeatherData();
 setInterval(createMovingClouds, 15000);
 
-// Inicializar con datos por defecto - esto se ejecutará después de que todo esté cargado
-setTimeout(() => {
-  updateWeatherData({ uvIndex: 11, airQuality: 200 });
-}, 100);
+let actualUv = 0;
+let actualOzone = 0;
 
-console.log('Sistema cargado. Haz clic en cualquier municipio para ver su nombre en la consola.');
+console.log('Sistema cargado. Haz clic en cualquier municipio para ver su nombre y coordenadas en la consola.');
 
 // Función para crear nubes dispersas en la parte superior
 function createClouds() {
