@@ -466,6 +466,8 @@ function getCloudContainer() {
   return document.getElementById('cloud-container');
 }
 
+
+
 // Función para crear una nube individual
 function createCloud(type) {
   const cloudContainer = getCloudContainer();
