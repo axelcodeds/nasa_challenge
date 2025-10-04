@@ -317,3 +317,102 @@ h1, p {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+/* clounds config */
+/* Animación de nubes */
+.cloud-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30vh;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: moveCloud linear infinite;
+}
+
+.cloud:before,
+.cloud:after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+
+/* Animación base para mover nubes */
+@keyframes moveCloud {
+  from {
+    transform: translateX(-100px);
+  }
+  to {
+    transform: translateX(calc(100vw + 100px));
+  }
+}
+
+/* Estilos para diferentes tipos de nubes */
+.cloud-type1 {
+  width: 60px;
+  height: 20px;
+  top: 10%;
+}
+
+.cloud-type1:before {
+  width: 25px;
+  height: 25px;
+  top: -15px;
+  left: 5px;
+}
+
+.cloud-type1:after {
+  width: 35px;
+  height: 35px;
+  top: -20px;
+  left: 20px;
+}
+
+.cloud-type2 {
+  width: 80px;
+  height: 30px;
+  top: 25%;
+}
+
+.cloud-type2:before {
+  width: 35px;
+  height: 35px;
+  top: -20px;
+  left: 10px;
+}
+
+.cloud-type2:after {
+  width: 45px;
+  height: 45px;
+  top: -25px;
+  left: 30px;
+}
+
+.cloud-type3 {
+  width: 100px;
+  height: 40px;
+  top: 40%;
+}
+
+.cloud-type3:before {
+  width: 45px;
+  height: 45px;
+  top: -25px;
+  left: 15px;
+}
+
+.cloud-type3:after {
+  width: 55px;
+  height: 55px;
+  top: -30px;
+  left: 40px;
+}
