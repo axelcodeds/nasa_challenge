@@ -4,6 +4,9 @@
 
 **AURA Guerrero** (**A**ir, **U**bicación [Location], and **R**isk **A**mbiental [Environmental Risk]) is an open-source web application designed to democratize access to crucial data on air quality and UV radiation levels in the state of Guerrero, Mexico. The platform presents this information intuitively on an interactive map at the municipal level, enabling citizens, authorities, and tourists to make informed decisions to protect their health and well-being. The project directly responds to NASA's "From EarthData to Action" challenge, laying the groundwork for an early warning system for environmental risks.
 
+### **Project Demostration**
+https://nasa-challenge-psi.vercel.app/
+
 -----
 
 ### **Application Functionality**
@@ -34,7 +37,7 @@ The platform is simple and intuitive to use, focused on accessibility.
 
 ### **Technologies Used**
 
-  * **Frontend:** HTML5, CSS3, JavaScript
+  * **Frontend:** HTML5, CSS3, JavaScript, TailwindCSS
   * **Mapping Library:** Leaflet.js
   * **Geospatial Data Format:** GeoJSON
   * **Data APIs:**
