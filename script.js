@@ -82,40 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // 6. Función para centrar y mostrar info del municipio
-  function selectMunicipio(nombre) {
-    input.value = nombre;
-    suggestions.style.display = 'none';
-    if (!geojsonLayer) return;
-    let found = false;
-    geojsonLayer.eachLayer(function(layer) {
-      if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
-        found = true;
-        if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
-        selectedLayer = layer;
-        layer.setStyle({ weight: 4, color: '#2563eb' });
-        layer.bringToFront();
-        const center = layer.getBounds().getCenter();
-  map.flyTo(center, 10);
-        // Popup con nombre y coordenadas
-        const props = layer.feature.properties;
-        const mun = props?.NOMGEO || 'Municipio desconocido';
-        const popupContent = `
-          <strong>${mun}</strong>
-          <br/>
-          Coordenadas del centro:<br/>
-          Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
-        `;
-        layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
-        if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
-        if (typeof info !== 'undefined' && info.update) info.update(props);
-      }
-    });
-    if (!found) {
-      input.classList.add('border-red-500');
-      setTimeout(()=>input.classList.remove('border-red-500'), 1200);
-    }
-  }
+  // 6. (Eliminada función local selectMunicipio)
 });
 // --- Buscador de municipios exacto ---
 document.addEventListener('DOMContentLoaded', function() {
@@ -410,9 +377,9 @@ function inicializarAutocompletado() {
       e.preventDefault();
     } else if (e.key === 'Enter') {
       if (selectedIndex >= 0 && currentMatches[selectedIndex]) {
-        selectMunicipio(currentMatches[selectedIndex]);
+  window.selectMunicipio(currentMatches[selectedIndex]);
       } else {
-        selectMunicipio(input.value);
+  window.selectMunicipio(input.value);
       }
       suggestions.style.display = 'none';
       e.preventDefault();
@@ -433,10 +400,49 @@ function inicializarAutocompletado() {
   // 4. Selección con clic
   suggestions.addEventListener('click', function(e) {
     if (e.target && e.target.dataset.muni) {
-      selectMunicipio(e.target.dataset.muni);
+  window.selectMunicipio(e.target.dataset.muni);
       suggestions.style.display = 'none';
     }
   });
+
+  // --- Definir selectMunicipio en el scope global ---
+  window.selectMunicipio = function(nombre) {
+    const input = document.getElementById('municipio-search');
+    const suggestions = document.getElementById('municipio-suggestions');
+    if (input && suggestions) {
+      input.value = nombre;
+      suggestions.style.display = 'none';
+    }
+    if (!geojsonLayer) return;
+    let found = false;
+    geojsonLayer.eachLayer(function(layer) {
+      if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
+        found = true;
+        if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
+        selectedLayer = layer;
+        layer.setStyle({ weight: 4, color: '#2563eb' });
+        layer.bringToFront();
+        const center = layer.getBounds().getCenter();
+        map.flyTo(center, 10);
+        // Popup con nombre y coordenadas
+        const props = layer.feature.properties;
+        const mun = props?.NOMGEO || 'Municipio desconocido';
+        const popupContent = `
+          <strong>${mun}</strong>
+          <br/>
+          Coordenadas del centro:<br/>
+          Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
+        `;
+        layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
+        if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
+        if (typeof info !== 'undefined' && info.update) info.update(props);
+      }
+    });
+    if (!found && input) {
+      input.classList.add('border-red-500');
+      setTimeout(()=>input.classList.remove('border-red-500'), 1200);
+    }
+  }
 
   // 5. Ocultar sugerencias al hacer clic fuera
   document.addEventListener('click', function(e) {
