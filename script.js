@@ -1,7 +1,170 @@
-// script.js — adaptado para mostrar MUNICIPIOS (NOMGEO)
+// --- Autocompletado para barra de búsqueda de municipios ---
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('municipio-search');
+  const suggestions = document.getElementById('municipio-suggestions');
+  if (!input || !suggestions || !geojsonLayer) return;
+  // 1. Obtener lista de municipios
+  let municipios = [];
+  geojsonLayer.eachLayer(function(layer) {
+    if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO) {
+      municipios.push(layer.feature.properties.NOMGEO);
+    }
+  });
+  let currentMatches = [];
+  let selectedIndex = -1;
+
+  // 2. Mostrar sugerencias al escribir
+  input.addEventListener('input', function() {
+    const value = input.value.trim().toLowerCase();
+    if (!value) {
+      suggestions.innerHTML = '';
+      suggestions.style.display = 'none';
+      selectedIndex = -1;
+      return;
+    }
+    currentMatches = municipios.filter(m => m.toLowerCase().includes(value));
+    if (currentMatches.length === 0) {
+      suggestions.innerHTML = '<div class="px-4 py-2 text-gray-500">No encontrado</div>';
+      suggestions.style.display = 'block';
+      selectedIndex = -1;
+      return;
+    }
+    suggestions.innerHTML = currentMatches.map((m, i) => `<div class='px-4 py-2 hover:bg-blue-100 cursor-pointer ${i===selectedIndex?'bg-blue-100':''}' data-muni='${m}'>${m}</div>`).join('');
+    suggestions.style.display = 'block';
+    selectedIndex = -1;
+  });
+
+  // 3. Navegación con teclado
+  input.addEventListener('keydown', function(e) {
+    if (suggestions.classList.contains('hidden')) return;
+    if (e.key === 'ArrowDown') {
+      if (selectedIndex < currentMatches.length - 1) selectedIndex++;
+      updateSuggestionHighlight();
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      if (selectedIndex > 0) selectedIndex--;
+      updateSuggestionHighlight();
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      if (selectedIndex >= 0 && currentMatches[selectedIndex]) {
+        selectMunicipio(currentMatches[selectedIndex]);
+      } else {
+        selectMunicipio(input.value);
+      }
+      suggestions.classList.add('hidden');
+      e.preventDefault();
+    }
+  });
+
+  function updateSuggestionHighlight() {
+    const children = suggestions.querySelectorAll('[data-muni]');
+    children.forEach((el, i) => {
+      if (i === selectedIndex) {
+        el.classList.add('bg-blue-100');
+      } else {
+        el.classList.remove('bg-blue-100');
+      }
+    });
+  }
+
+  // 4. Selección con clic
+  suggestions.addEventListener('click', function(e) {
+    if (e.target && e.target.dataset.muni) {
+      selectMunicipio(e.target.dataset.muni);
+      suggestions.style.display = 'none';
+    }
+  });
+
+  // 5. Ocultar sugerencias al hacer clic fuera
+  document.addEventListener('click', function(e) {
+    if (!suggestions.contains(e.target) && e.target !== input) {
+      suggestions.style.display = 'none';
+    }
+  });
+
+  // 6. Función para centrar y mostrar info del municipio
+  function selectMunicipio(nombre) {
+    input.value = nombre;
+    suggestions.style.display = 'none';
+    if (!geojsonLayer) return;
+    let found = false;
+    geojsonLayer.eachLayer(function(layer) {
+      if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
+        found = true;
+        if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
+        selectedLayer = layer;
+        layer.setStyle({ weight: 4, color: '#2563eb' });
+        layer.bringToFront();
+        const center = layer.getBounds().getCenter();
+        map.flyTo(center, 11);
+        // Popup con nombre y coordenadas
+        const props = layer.feature.properties;
+        const mun = props?.NOMGEO || 'Municipio desconocido';
+        const popupContent = `
+          <strong>${mun}</strong>
+          <br/>
+          Coordenadas del centro:<br/>
+          Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
+        `;
+        layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
+        if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
+        if (typeof info !== 'undefined' && info.update) info.update(props);
+      }
+    });
+    if (!found) {
+      input.classList.add('border-red-500');
+      setTimeout(()=>input.classList.remove('border-red-500'), 1200);
+    }
+  }
+});
+// --- Buscador de municipios exacto ---
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('municipio-search');
+  if (!input) return;
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const nombre = input.value.trim();
+      if (!nombre) return;
+      // Buscar municipio exacto en geojsonLayer
+      if (!geojsonLayer) return;
+      let found = false;
+      geojsonLayer.eachLayer(function(layer) {
+        if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
+          found = true;
+          if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
+          selectedLayer = layer;
+          layer.setStyle({ weight: 4, color: '#2563eb' });
+          layer.bringToFront();
+          const center = layer.getBounds().getCenter();
+          map.flyTo(center, 11);
+          // Popup con nombre y coordenadas
+          const props = layer.feature.properties;
+          const mun = props?.NOMGEO || 'Municipio desconocido';
+          const popupContent = `
+            <strong>${mun}</strong>
+            <br/>
+            Coordenadas del centro:<br/>
+            Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
+          `;
+          layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
+          // Actualiza datos meteorológicos si aplica
+          if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
+          // Actualiza panel info si existe
+          if (typeof info !== 'undefined' && info.update) info.update(props);
+        }
+      });
+      if (!found) {
+        input.classList.add('border-red-500');
+        setTimeout(()=>input.classList.remove('border-red-500'), 1200);
+      }
+    }
+  });
+});
+
 
 // 1. Inicializar el mapa y centrarlo en Guerrero (SIN MARCA DE AGUA)
 const map = L.map('map', {
+  
   attributionControl: false, 
   center: [17.6, -99.5], // Centro en Guerrero
 
@@ -26,13 +189,6 @@ const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/s
 // Por defecto, mostramos la imagen satelital
 esriSatellite.addTo(map);
 
-// Añadir el control para cambiar entre mapa de calles e imagen satelital
-const baseLayers = {
-    "Imagen Satelital": esriSatellite,
-    "Mapa de Calles": openStreetMap
-};
-
-L.control.layers(baseLayers, null, { collapsed: false }).addTo(map);
 
 // Variables globales
 let geojsonLayer = null;
@@ -192,15 +348,8 @@ function onEachFeature(feature, layer) {
 const geojsonURL = 'groo.json';
 
 fetch(geojsonURL)
-  .then(resp => {
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return resp.json();
-  })
+  .then(resp => resp.json())
   .then(data => {
-    if (!data || !data.features) throw new Error('GeoJSON no tiene la estructura esperada.');
-
-    console.log('GeoJSON de municipios cargado. Primer feature.properties =>', data.features[0].properties);
-
     geojsonLayer = L.geoJson(data, {
       style: style,
       onEachFeature: onEachFeature
@@ -211,6 +360,130 @@ fetch(geojsonURL)
     } catch (err) {
       console.warn('No se pudo ajustar bounds del GeoJSON:', err);
     }
+    // Inicializar autocompletado cuando el geojson está listo
+    inicializarAutocompletado();
+// --- Función de autocompletado para municipios ---
+function inicializarAutocompletado() {
+  const input = document.getElementById('municipio-search');
+  const suggestions = document.getElementById('municipio-suggestions');
+  if (!input || !suggestions || !geojsonLayer) return;
+  // 1. Obtener lista de municipios
+  let municipios = [];
+  geojsonLayer.eachLayer(function(layer) {
+    if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO) {
+      municipios.push(layer.feature.properties.NOMGEO);
+    }
+  });
+  let currentMatches = [];
+  let selectedIndex = -1;
+
+  // 2. Mostrar sugerencias al escribir
+  input.addEventListener('input', function() {
+    const value = input.value.trim().toLowerCase();
+    if (!value) {
+      suggestions.innerHTML = '';
+      suggestions.style.display = 'none';
+      selectedIndex = -1;
+      return;
+    }
+    currentMatches = municipios.filter(m => m.toLowerCase().includes(value));
+    if (currentMatches.length === 0) {
+      suggestions.innerHTML = '<div class="px-4 py-2 text-gray-500">No encontrado</div>';
+      suggestions.style.display = 'block';
+      selectedIndex = -1;
+      return;
+    }
+    suggestions.innerHTML = currentMatches.map((m, i) => `<div class='px-4 py-2 hover:bg-blue-100 cursor-pointer ${i===selectedIndex?'bg-blue-100':''}' data-muni='${m}'>${m}</div>`).join('');
+    suggestions.style.display = 'block';
+    selectedIndex = -1;
+  });
+
+  // 3. Navegación con teclado
+  input.addEventListener('keydown', function(e) {
+    if (suggestions.style.display === 'none') return;
+    if (e.key === 'ArrowDown') {
+      if (selectedIndex < currentMatches.length - 1) selectedIndex++;
+      updateSuggestionHighlight();
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      if (selectedIndex > 0) selectedIndex--;
+      updateSuggestionHighlight();
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      if (selectedIndex >= 0 && currentMatches[selectedIndex]) {
+        selectMunicipio(currentMatches[selectedIndex]);
+      } else {
+        selectMunicipio(input.value);
+      }
+      suggestions.style.display = 'none';
+      e.preventDefault();
+    }
+  });
+
+  function updateSuggestionHighlight() {
+    const children = suggestions.querySelectorAll('[data-muni]');
+    children.forEach((el, i) => {
+      if (i === selectedIndex) {
+        el.classList.add('bg-blue-100');
+      } else {
+        el.classList.remove('bg-blue-100');
+      }
+    });
+  }
+
+  // 4. Selección con clic
+  suggestions.addEventListener('click', function(e) {
+    if (e.target && e.target.dataset.muni) {
+      selectMunicipio(e.target.dataset.muni);
+      suggestions.style.display = 'none';
+    }
+  });
+
+  // 5. Ocultar sugerencias al hacer clic fuera
+  document.addEventListener('click', function(e) {
+    if (!suggestions.contains(e.target) && e.target !== input) {
+      suggestions.style.display = 'none';
+    }
+  });
+
+  // 6. Función para centrar y mostrar info del municipio
+  function selectMunicipio(nombre) {
+    input.value = nombre;
+    suggestions.style.display = 'none';
+    if (!geojsonLayer) return;
+    let found = false;
+    geojsonLayer.eachLayer(function(layer) {
+      if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
+        found = true;
+        if (window.selectedLayer) geojsonLayer.resetStyle(window.selectedLayer);
+        window.selectedLayer = layer;
+        layer.setStyle({ weight: 4, color: '#2563eb' });
+        layer.bringToFront();
+        const center = layer.getBounds().getCenter();
+        map.flyTo(center, 11);
+        // Popup con nombre y coordenadas
+        const props = layer.feature.properties;
+        const mun = props?.NOMGEO || 'Municipio desconocido';
+        const popupContent = `
+          <strong>${mun}</strong>
+          <br/>
+          Coordenadas del centro:<br/>
+          Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
+        `;
+        layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
+        if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
+        if (typeof info !== 'undefined' && info.update) info.update(props);
+      }
+    });
+    if (!found) {
+      input.classList.add('border-red-500');
+      setTimeout(()=>input.classList.remove('border-red-500'), 1200);
+    }
+  }
+}
+
+    // Aquí inicializa el autocompletado:
+    inicializarAutocompletado();
   })
   .catch(err => {
     console.error(`Error al cargar o parsear ${geojsonURL}:`, err);

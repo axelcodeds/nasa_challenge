@@ -1,3 +1,28 @@
+/* Barra de búsqueda personalizada */
+.search-bar {
+    background: rgba(255,255,255,0.85);
+    font-size: 1.1rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.search-bar:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+.search-bar.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px #ef444433;
+}
+.suggestions-list {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    font-size: 1rem;
+    z-index: 1000;
+}
+.suggestions-list > div {
+    transition: background 0.15s;
+}
 /* Estilo general de la página */
 body {
     font-family: sans-serif;
