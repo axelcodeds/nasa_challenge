@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         layer.setStyle({ weight: 4, color: '#2563eb' });
         layer.bringToFront();
         const center = layer.getBounds().getCenter();
-        map.flyTo(center, 11);
+  map.flyTo(center, 10);
         // Popup con nombre y coordenadas
         const props = layer.feature.properties;
         const mun = props?.NOMGEO || 'Municipio desconocido';
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
           layer.setStyle({ weight: 4, color: '#2563eb' });
           layer.bringToFront();
           const center = layer.getBounds().getCenter();
-          map.flyTo(center, 11);
+          map.flyTo(center, 10);
           // Popup con nombre y coordenadas
           const props = layer.feature.properties;
           const mun = props?.NOMGEO || 'Municipio desconocido';
@@ -164,13 +164,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 1. Inicializar el mapa y centrarlo en Guerrero (SIN MARCA DE AGUA)
 const map = L.map('map', {
-  
+ 
   attributionControl: false, 
   center: [17.6, -99.5], // Centro en Guerrero
 
 });
 
-// This prevents the zoom level from ever exceeding 19
 map.on('zoomend', function() {
     if (map.getZoom() < 8) {
         map.setView([17.6, -99.5], 8)
@@ -326,7 +325,7 @@ function zoomToFeature(e) {
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
 
     // Centrar el mapa en el municipio
-    map.flyTo(center, 11);
+  map.flyTo(center, 10);
     
     // --- ACTUALIZAR DATOS METEOROLÓGICOS CON LAS NUEVAS COORDENADAS ---
     fetchWeatherData(lat, lng);
@@ -446,40 +445,7 @@ function inicializarAutocompletado() {
     }
   });
 
-  // 6. Función para centrar y mostrar info del municipio
-  function selectMunicipio(nombre) {
-    input.value = nombre;
-    suggestions.style.display = 'none';
-    if (!geojsonLayer) return;
-    let found = false;
-    geojsonLayer.eachLayer(function(layer) {
-      if (layer.feature && layer.feature.properties && layer.feature.properties.NOMGEO === nombre) {
-        found = true;
-        if (window.selectedLayer) geojsonLayer.resetStyle(window.selectedLayer);
-        window.selectedLayer = layer;
-        layer.setStyle({ weight: 4, color: '#2563eb' });
-        layer.bringToFront();
-        const center = layer.getBounds().getCenter();
-        map.flyTo(center, 11);
-        // Popup con nombre y coordenadas
-        const props = layer.feature.properties;
-        const mun = props?.NOMGEO || 'Municipio desconocido';
-        const popupContent = `
-          <strong>${mun}</strong>
-          <br/>
-          Coordenadas del centro:<br/>
-          Lat: ${center.lat.toFixed(4)}, Lon: ${center.lng.toFixed(4)}
-        `;
-        layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
-        if (typeof fetchWeatherData === 'function') fetchWeatherData(center.lat, center.lng);
-        if (typeof info !== 'undefined' && info.update) info.update(props);
-      }
-    });
-    if (!found) {
-      input.classList.add('border-red-500');
-      setTimeout(()=>input.classList.remove('border-red-500'), 1200);
-    }
-  }
+
 }
 
     // Aquí inicializa el autocompletado:
@@ -490,15 +456,10 @@ function inicializarAutocompletado() {
     alert(`No se pudo cargar "${geojsonURL}". Verifica la consola (F12) y asegúrate de usar un servidor local.`);
   });
 
-// ... (el resto de tu código permanece igual - funciones de animación, nubes, etc.)
-
-// Inicializar Feather icons
 feather.replace();
 
-// Inicializar AOS
 AOS.init();
 
-// Create sun flares
 function createSunFlares() {
   const flaresContainer = document.getElementById("sun-flares");
   flaresContainer.innerHTML = "";
