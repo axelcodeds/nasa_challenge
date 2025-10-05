@@ -1,89 +1,89 @@
-## **Documentación del Proyecto: AURA Guerrero**
+## **Project Documentation: AURA Guerrero**
 
-### **Resumen del Proyecto**
+### **Project Summary**
 
-**AURA Guerrero** (**A**ire, **U**bicación y **R**iesgo **A**mbiental) es una aplicación web de código abierto diseñada para democratizar el acceso a datos cruciales sobre la calidad del aire y los niveles de radiación UV en el estado de Guerrero, México. La plataforma presenta esta información de manera intuitiva sobre un mapa interactivo a nivel municipal, permitiendo a los ciudadanos, autoridades y turistas tomar decisiones informadas para proteger su salud y bienestar. El proyecto responde directamente al desafío "From EarthData to Action" de la NASA, sentando las bases para un sistema de alerta temprana de riesgos ambientales.
+**AURA Guerrero** (**A**ir, **U**bicación [Location], and **R**isk **A**mbiental [Environmental Risk]) is an open-source web application designed to democratize access to crucial data on air quality and UV radiation levels in the state of Guerrero, Mexico. The platform presents this information intuitively on an interactive map at the municipal level, enabling citizens, authorities, and tourists to make informed decisions to protect their health and well-being. The project directly responds to NASA's "From EarthData to Action" challenge, laying the groundwork for an early warning system for environmental risks.
 
 -----
 
-### **Funcionalidad de la Aplicación**
+### **Application Functionality**
 
-La plataforma es de uso simple e intuitivo, enfocada en la accesibilidad.
+The platform is simple and intuitive to use, focused on accessibility.
 
-#### **Para el Usuario:**
+#### **For the User:**
 
-1.  **Visualización Inmediata:** Al cargar la página, el usuario ve un mapa del estado de Guerrero con una imagen satelital de fondo y las divisiones municipales claramente delineadas.
-2.  **Consulta Interactiva:** El usuario puede hacer clic en cualquier municipio de su interés.
-3.  **Datos en Tiempo Real:** Al hacer clic, una ventana emergente (`popup`) aparece en el centro del municipio seleccionado, mostrando los siguientes datos en tiempo real:
-      * **Índice de Rayos UV:** Un valor numérico con una interpretación simple (Bajo, Moderado, Alto).
-      * **Calidad del Aire:** Medida a través de la concentración de Ozono a nivel de superficie, un indicador clave de la contaminación.
-      * **Recomendaciones de Salud:** Basado en los datos, se ofrece una sugerencia simple (ej. "Nivel UV Alto: Se recomienda usar protector solar").
+1.  **Immediate Visualization:** Upon loading the page, the user sees a map of the state of Guerrero with a satellite image background and the municipal divisions clearly outlined.
+2.  **Interactive Query:** The user can click on any municipality of interest.
+3.  **Real-Time Data:** Upon clicking, a popup window appears at the center of the selected municipality, displaying the following real-time data:
+      * **UV Index:** A numerical value with a simple interpretation (Low, Moderate, High).
+      * **Air Quality:** Measured through surface-level Ozone concentration, a key indicator of pollution.
+      * **Health Recommendations:** Based on the data, a simple suggestion is offered (e.g., "High UV Level: Using sunscreen is recommended").
 
-#### **Funcionamiento Técnico:**
+#### **Technical Operation:**
 
-1.  **Carga de Geometría:** La aplicación carga un archivo `Guerrero.geojson` que contiene los polígonos de todos los municipios.
-2.  **Cálculo de Coordenadas:** Al hacer clic en un municipio, la librería Leaflet.js calcula las coordenadas geográficas (latitud y longitud) del centro de ese polígono.
-3.  **Llamada a la API:** Esas coordenadas se envían a la **API de Calidad del Aire de Open-Meteo**, que es una API abierta que agrega datos de modelos meteorológicos globales. La solicitud es la siguiente:
+1.  **Geometry Loading:** The application loads a `Guerrero.geojson` file containing the polygons of all municipalities.
+2.  **Coordinate Calculation:** When a municipality is clicked, the Leaflet.js library calculates the geographic coordinates (latitude and longitude) of the center of that polygon.
+3.  **API Call:** These coordinates are sent to the **Open-Meteo Air Quality API**, an open API that aggregates data from global meteorological models. The request is as follows:
     ```
     https://air-quality-api.open-meteo.com/v1/air-quality?latitude=LAT&longitude=LON&current=uv_index,ozone
     ```
-4.  **Visualización de Datos:** La respuesta de la API (en formato JSON) es procesada y mostrada en el `popup` sobre el mapa.
-5.  **Contexto Satelital:** El mapa utiliza como capa base el servicio **Esri World Imagery**, que se nutre de imágenes satelitales de la NASA, proporcionando un contexto visual realista.
+4.  **Data Visualization:** The API response (in JSON format) is processed and displayed in the popup on the map.
+5.  **Satellite Context:** The map uses the **Esri World Imagery** service as a base layer, which is fed by NASA satellite imagery, providing a realistic visual context.
 
 -----
 
-### **Tecnologías Utilizadas**
+### **Technologies Used**
 
   * **Frontend:** HTML5, CSS3, JavaScript
-  * **Librería de Mapeo:** Leaflet.js
-  * **Formato de Datos Geoespaciales:** GeoJSON
-  * **APIs de Datos:**
-      * **Open-Meteo Air-Quality API:** Para datos de Índice UV y Ozono.
-      * **Esri World Imagery (basado en datos de la NASA):** Para la capa de imagen satelital.
+  * **Mapping Library:** Leaflet.js
+  * **Geospatial Data Format:** GeoJSON
+  * **Data APIs:**
+      * **Open-Meteo Air-Quality API:** For UV Index and Ozone data.
+      * **Esri World Imagery (based on NASA data):** For the satellite imagery layer.
 
 -----
 
-### **Propuesta de Proyecto (Formato para Jurado)**
+### **Project Proposal (Format for Jury)**
 
-#### **1. Introducción y Justificación**
+#### **1. Introduction and Justification**
 
-La contaminación del aire y la radiación ultravioleta son amenazas invisibles para la salud pública. En el estado de Guerrero, con su diversa geografía y centros urbanos y turísticos importantes como Acapulco, la falta de información ambiental accesible, gratuita y localizada a nivel municipal representa un riesgo significativo. Los ciudadanos y visitantes carecen de herramientas simples para tomar decisiones diarias, como cuándo es seguro hacer ejercicio al aire libre o la necesidad de protección solar. **AURA Guerrero** nace para cerrar esta brecha informativa.
+Air pollution and ultraviolet radiation are invisible threats to public health. In the state of Guerrero, with its diverse geography and important urban and tourist centers like Acapulco, the lack of accessible, free, and localized environmental information at the municipal level represents a significant risk. Citizens and visitors lack simple tools for making daily decisions, such as when it is safe to exercise outdoors or the need for sun protection. **AURA Guerrero** was born to close this information gap.
 
-#### **2. Objetivos**
+#### **2. Objectives**
 
-  * **Objetivo General:** Desarrollar una herramienta de monitoreo ambiental accesible y centrada en el usuario para el estado de Guerrero, que traduzca datos complejos en información accionable para la protección de la salud.
-  * **Objetivos Específicos:**
-      * Integrar datos en tiempo real de calidad del aire (Ozono) e Índice UV.
-      * Presentar la información geográficamente a nivel municipal en un mapa interactivo.
-      * Proporcionar recomendaciones de salud basadas en los niveles de riesgo.
-      * Diseñar una interfaz de usuario intuitiva que no requiera conocimientos técnicos.
+  * **General Objective:** To develop an accessible, user-centered environmental monitoring tool for the state of Guerrero, translating complex data into actionable information for health protection.
+  * **Specific Objectives:**
+      * Integrate real-time air quality (Ozone) and UV Index data.
+      * Present the information geographically at the municipal level on an interactive map.
+      * Provide health recommendations based on risk levels.
+      * Design an intuitive user interface that does not require technical knowledge.
 
-#### **3. Estado del Arte**
+#### **3. State of the Art**
 
-Actualmente, existen soluciones de monitoreo a nivel nacional (como el SINAICA en México) y aplicaciones globales (ej. AccuWeather). Sin embargo, estas a menudo carecen de la granularidad y el enfoque específico para los municipios de Guerrero, o presentan los datos de una manera no intuitiva para el público general. **AURA Guerrero** se diferencia por su **enfoque hiper-local y su simplicidad radical**, diseñado como un servicio público digital para una región específica.
+Currently, monitoring solutions exist at the national level (such as SINAICA in Mexico) and global applications (e.g., AccuWeather). However, these often lack the granularity and specific focus for the municipalities of Guerrero, or present data in a non-intuitive way for the general public. **AURA Guerrero** differentiates itself through its **hyper-local focus and radical simplicity**, designed as a digital public service for a specific region.
 
-#### **4. Metodología y Pasos Futuros**
+#### **4. Methodology and Next Steps**
 
-El proyecto se concibe en fases, alineado con las metas del "NASA Space Apps Challenge":
+The project is conceived in phases, aligned with the goals of the "NASA Space Apps Challenge":
 
-  * **Fase 1 (Prototipo Actual - Completada):** Se ha desarrollado un prototipo funcional que valida el concepto principal: la capacidad de consultar datos ambientales por municipio en un mapa interactivo, utilizando APIs abiertas y confiables.
+  * **Phase 1 (Current Prototype - Completed):** A functional prototype has been developed that validates the main concept: the ability to query environmental data by municipality on an interactive map, using open and reliable APIs.
 
-  * **Fase 2 (Integración de Datos NASA - Siguiente Paso):** El siguiente paso crucial es reemplazar o complementar los datos de Open-Meteo con los de la misión **TEMPO de la NASA**. El flujo de trabajo, alineado con el reto, será:
+  * **Phase 2 (NASA Data Integration - Next Step):** The next crucial step is to replace or complement Open-Meteo data with data from the **NASA TEMPO mission**. The workflow, aligned with the challenge, will be:
 
-    1.  **Ingesta Automatizada:** Un backend en la nube (ej. AWS Lambda) descargará diariamente los archivos de datos de TEMPO (NO2, Ozono) de Earthdata Search.
-    2.  **Procesamiento Geoespacial:** Un script de Python (usando Xarray, GeoPandas) procesará estos datos, calculando el valor promedio para cada municipio de Guerrero.
-    3.  **Exposición de Datos:** Los datos procesados se almacenarán (ej. en Amazon S3) y se consumirán desde el frontend, ofreciendo una visualización basada 100% en datos directos de la NASA.
+    1.  **Automated Ingest:** A cloud backend (e.g., AWS Lambda) will daily download TEMPO data files (NO2, Ozone) from Earthdata Search.
+    2.  **Geospatial Processing:** A Python script (using Xarray, GeoPandas) will process this data, calculating the average value for each municipality in Guerrero.
+    3.  **Data Exposure:** The processed data will be stored (e.g., in Amazon S3) and consumed by the frontend, offering a visualization based 100% on direct NASA data.
 
-  * **Fase 3 (Modelo Predictivo y Alertas):** Con los datos históricos de la NASA, se desarrollará un modelo de machine learning (series temporales) para pronosticar la calidad del aire con 24 horas de antelación y se implementará un sistema de alertas proactivas (email, notificaciones push) para los usuarios.
+  * **Phase 3 (Predictive Model and Alerts):** Using historical NASA data, a machine learning model (time series) will be developed to forecast air quality 24 hours in advance, and a system of proactive alerts (email, push notifications) for users will be implemented.
 
 -----
 
-### **Estrategia de Difusión**
+### **Dissemination Strategy**
 
-Para que AURA Guerrero tenga un impacto real, proponemos una estrategia de difusión multi-canal:
+For AURA Guerrero to have a real impact, we propose a multi-channel dissemination strategy:
 
-  * **Alianzas Institucionales:** Colaborar con la **Secretaría de Salud de Guerrero** y la **Secretaría de Educación** para promover la herramienta en centros de salud, clínicas y escuelas.
-  * **Sector Turístico:** Trabajar con hoteles y agencias de turismo en destinos clave como Acapulco, Ixtapa-Zihuatanejo y Taxco para informar a los visitantes sobre las condiciones diarias.
-  * **Medios Locales:** Difundir la plataforma a través de comunicados de prensa a periódicos, estaciones de radio y canales de televisión locales.
-  * **Campaña Digital:** Utilizar redes sociales para publicar reportes diarios de calidad del aire y UV, dirigiendo tráfico a la aplicación.
-  * **Acceso Público:** Colocar códigos QR en espacios públicos (parques, playas, centros deportivos) que enlacen directamente a la aplicación web.
+  * **Institutional Alliances:** Collaborate with the **Guerrero Ministry of Health** and the **Ministry of Education** to promote the tool in health centers, clinics, and schools.
+  * **Tourism Sector:** Work with hotels and tourism agencies in key destinations like Acapulco, Ixtapa-Zihuatanejo, and Taxco to inform visitors about daily conditions.
+  * **Local Media:** Disseminate the platform through press releases to local newspapers, radio stations, and television channels.
+  * **Digital Campaign:** Use social media to publish daily air quality and UV reports, driving traffic to the application.
+  * **Public Access:** Place QR codes in public spaces (parks, beaches, sports centers) that link directly to the web application.
